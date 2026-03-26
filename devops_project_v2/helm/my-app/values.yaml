@@ -1,0 +1,18 @@
+image:
+  repository: myrepo/my-app
+  tag: "latest"
+
+replicaCount: 2
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  host: myapp.example.com
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5

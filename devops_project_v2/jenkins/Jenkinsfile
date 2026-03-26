@@ -1,0 +1,37 @@
+pipeline {
+  agent any
+
+  environment {
+    IMAGE = "myrepo/my-app:${BUILD_NUMBER}"
+  }
+
+  stages {
+    stage('Checkout') {
+      steps { git 'https://github.com/myrepo.git' }
+    }
+    stage('Build') {
+      steps { sh 'docker build -t $IMAGE .' }
+    }
+    stage('Push') {
+      steps { sh 'docker push $IMAGE' }
+    }
+    stage('Update Helm Values') {
+      steps {
+        sh '''
+        sed -i "s/tag:.*/tag: ${BUILD_NUMBER}/" environments/prod-values.yaml
+        '''
+      }
+    }
+    stage('Commit') {
+      steps {
+        sh '''
+        git config user.email "ci@example.com"
+        git config user.name "jenkins"
+        git add .
+        git commit -m "update image ${BUILD_NUMBER}"
+        git push
+        '''
+      }
+    }
+  }
+}
